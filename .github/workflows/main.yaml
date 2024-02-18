@@ -1,0 +1,24 @@
+name: APK Deploy
+
+on:
+  push:
+    branches:
+    - master
+    
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    # Setup Java environment in order to build the Android app.
+    - uses: actions/checkout@v4
+    # setup flutter environment
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.0.2'
+    # Get flutter dependencies.
+    - run: flutter pub get
+
+    # Build apk.
+    - run: flutter build apk --release
+    - run: flutter build ios
+
