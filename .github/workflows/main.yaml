@@ -15,6 +15,11 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '12'
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stab
+    - name: Install CocoaPods
+      run: sudo gem install cocoapods
     # setup flutter environment
     - uses: subosito/flutter-action@v2
       with:
@@ -26,10 +31,13 @@ jobs:
     - run: flutter build apk --release
     - run: flutter build ios --no-codesign
 
+    - run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -archivePath $PWD/build/Runner.xcarchive archive
+    - run:  xcodebuild -exportArchive -archivePath $PWD/build/Runner.xcarchive -exportOptionsPlist exportOptions.plist -exportPath $PWD/build
+
     - name: Push to Releases
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "build/app/outputs/flutter-apk/app-release.apk"
+        artifacts: "build/app/outputs/flutter-apk/app-release.apk,build/Runner.ipa"
         tag: v1.0.${{ github.run_number }}
         token: ${{secrets.TOKEN}}
 
